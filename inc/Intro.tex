@@ -1,0 +1,260 @@
+\documentclass{beamer}
+\usetheme{Berlin}
+\usecolortheme{dolphin}
+%\setbeamercovered{invisible}
+%\setbeamertemplate{navigation symbols}{} 
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \setbeamercovered{transparent}
+}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+%\usepackage[spanish]{babel}					% Spanish package
+\usepackage{amsmath}						% Math library
+\usepackage{multirow}						% Multirow tables
+\usepackage{verbatim}
+%\usepackage{times}
+%\usepackage[T1]{fontenc}
+
+
+\title[Universidad de Cuenca]					% Title
+{\textbf{Nonlinear Control Course} \\ Session 1 (Intro)}
+\titlegraphic{\includegraphics[width=3cm]{logo}}	% Logo
+\author[Ismael Minchala A.]					% Author
+{Luis Ismael Minchala Avila } %\inst{1}}
+\institute[]	 							% Institute
+{
+%  \inst{1}
+  Universidad de Cuenca \\ Departamento de Eléctrica, Electrónica y Telecomunicaciones \\
+  {\tt ismael.minchala@ucuenca.edu.ec}					% Institute in title frame
+
+}
+\date[January 2016]						% Date
+{}
+\subject{Nonlinear control course}
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+ \pgfdeclareimage[height=0.5cm]{university-logo}{logo.jpg}
+% \logo{\pgfuseimage{university-logo}}
+\useoutertheme{infolines}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}<beamer>{Agenda}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command: 
+\beamerdefaultoverlayspecification{<+->}
+
+\begin{document}							% Begin document
+
+\begin{frame}
+  \titlepage								% Title slide
+\end{frame}
+
+\begin{frame}{Agenda}
+  \tableofcontents 							% Contents slide
+\end{frame}
+
+% ********************************************* - Introduction - *********************************************
+\section{Introduction}
+\begin{frame}{Reasons to use nonlinear control}
+\begin{itemize}
+	\item Improvement of existing control systems
+		\begin{itemize}
+			\item Larger range of operation
+			\item High accuracy control, \emph{i.e.} Robot control
+		\end{itemize}
+	\item Analysis of hard nonlinearities
+		\begin{itemize}
+			\item Nonlinearities with discontinuous nature
+			\item Saturation (anti-windup), dead-zones (modeling), backlash, hysteresis (dead-times)
+		\end{itemize}
+	\item Model uncertainties
+		\begin{itemize}
+			\item Time varying of sudden changes of parameters (sliding and fuzzy controllers)
+		\end{itemize}
+	\item Design simplicity
+		\begin{itemize}
+			\item Simpler and intuitive design than linear designs
+			\item Actual computer power available for implementations
+		\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Nonlinear system behavior}
+\begin{itemize}
+	\item Physical systems are inherently nonlinear							\vspace{1em}
+	
+	\item All control systems are nonlinear to a certain extent					\vspace{1em}
+	
+	\item Nonlinearities can be classified as inherent and intentional
+		\begin{itemize}
+			\item Inherent nonlinearities are those which naturally come with the system's hardware and motion, \emph{e.g.} Coulomb friction, centripetal forces in rotational motion, etc.
+			\item Intentional nonlinearities are artificially introduced by the designer, \emph{e.g.} nonlinear control laws such as adaptive control laws and bang-bang optimal control.
+		\end{itemize}													\vspace{1em}
+	
+	\item Nonlinearities can also be classified in terms of their mathematical properties, as continuous and discontinuous
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Example of nonlinear system behavior}
+A simplified model of the motion of an uderwater vehicle can be written:
+
+\begin{equation} \label{nonlin1}
+	\dot{v} + |v|v = u
+\end{equation}
+
+where $v$ is the vehicle velocity and $u$ is the control input (thrust provided by the propeller)
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.65\textwidth]{01figs/01_intro_01}
+		\caption{Simulink implementation of system (\ref{nonlin1})}
+	\end{center}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Example of nonlinear system behavior}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.65\textwidth]{01figs/01_intro_02}
+		\caption{Response of system (\ref{nonlin1}) to steps of amplitude 1 and 10}
+	\end{center}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Example of nonlinear system behavior (MATLAB Coding)}
+%\newcommand\codeHighlight[1]{\textcolor[rgb]{0,1,0}{\textbf{#1}}}
+\begin{verbatim}
+	function ex1_1()
+	    clc; clear
+	    t0 = [0 20];
+	    y0 = 0;
+	    A1 = 1;
+	    [t1 v1] = ode45(@undwatveh, t0, y0, [], A1);    
+	    A10 = 10;
+	    [t10 v10] = ode45(@undwatveh, t0, y0, [], A10); 
+	    plotresponses(t1, v1, t10, v10)
+	end
+	
+	function dv = undwatveh(t, v, A)
+	    u = A*(t > 0 & t < 5);
+	    dv = -abs(v)*v + u;
+	end
+\end{verbatim}
+\end{frame}
+% ***********************************************************************************************************
+
+% ************************************* - Nonlinear System Behaviors - *************************************
+\section{Nonlinear system behaviors}
+\begin{frame}{Some nonlinear behaviors}
+\begin{itemize}
+	\item \underline{Multiple equilibrium points}. Nonlinear systems frequently have more than one equilibrium point.	\vspace{1em}
+	
+	\item \underline{Limit cycles}. Nonlinear systems can display oscillations of fixed amplitude and fixed period without external excitation.												\vspace{1em}
+	
+	\item \underline{Bifurcations}. As the parameters of nonlinear dynamic systems are changed, the stability of the equilibrium point can change and so the number of equilibrium points. Values of these parameters at which the qualitative nature of the system's motion changes are knwn as critical bifurcation values.	\vspace{1em}
+	
+	\item \underline{Chaos}. The system output is extremely sensitive to initial conditions.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Multiple equilibrium points}
+Consider the first order system:
+
+\begin{equation}
+\dot{x} = -x + x^2
+\end{equation}
+
+with initial condition $x(0) = x_0$. Its linearization is
+\pause
+
+\begin{eqnarray}
+\dot{x} &=& -x 			\\
+x &=& \frac{x_0 e^{-t}}{1 - x_0 + x_0e^{-t}}
+\end{eqnarray}
+\end{frame}
+
+\begin{frame}{Multiple equilibrium points}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.65\textwidth]{01figs/01_intro_03}
+		\caption{Response of the linearized system (a) and the nonlinear system (b)}
+	\end{center}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Limit cycles}
+\begin{itemize}
+	\item Oscillations of fixed amplitude and fixed period without external excitation
+	\item Amplitude is independent of initial conditions vs. oscillation of marginally linear systems
+	\item Limit cycles are not affected by parameters changes vs. marginally stable linear systems are sensitive
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Limit cycles (Van der Pol Equation)}
+The second-order nonlinear differential equation:
+
+\begin{equation} \label{VanderPol}
+m\ddot{x} + 2c\left( x^2 - 1 \right)\dot{x} + kx = 0
+\end{equation}
+
+where $m$, $c$ and $k$ are positive constants, is the famous Van der Pol equation. \vspace{1em}
+
+\underline{Exercise}\\
+Propose a solution of Equation (\ref{VanderPol}) in Matlab.
+\end{frame}
+
+\begin{frame}{Chaos}
+\begin{itemize}
+	\item The output of a nonlinear system can be very sensitive to initial conditions
+	\item In chaotic motion the problem involved is deterministic with little uncertainty
+	\item Chaos occurs mostly in strongly nonlinear systems
+	\item Fuzzy control can recover a nonlinear system when it get into chaotic mode
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Chaos}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.65\textwidth]{01figs/01_intro_04}
+		\caption{Chaotic behavior of a nonlinear system}
+	\end{center}
+\end{figure}
+\end{frame}
+% ***********************************************************************************************************
+
+% ************************************** - Summary and Questions - ***************************************
+\section{Summary and Questions}
+\begin{frame}{Summary}
+In this session, we have shown:
+
+\begin{itemize}
+	\item The reason to use nonlinear control;
+	\item The nonlinear behaviors, \emph{e.g.} multiple equilibrium points, limit cycles, chaos among others;
+	\item Examples and MATLAB programming.
+\end{itemize}
+\end{frame}
+
+\appendix
+\section<presentation>*{\appendixname}
+\subsection<presentation>*{Questions}
+
+\begin{frame}{Questions}
+%  \frametitle<presentation>{Espacio para Preguntas}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[scale=0.6]{incognita.jpg}
+	\end{center}
+\end{figure}
+\end{frame}
+\end{document}
+
+
